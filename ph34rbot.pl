@@ -14,7 +14,7 @@ use Fcntl ':flock';
 # My variables
 
 my $pipedir  = '/home/jester/html/poe-named-pipe';
-my $logdir   = '/home/jester/wd/logs';
+my $logdir   = '/home/jester/in228/stable/logs';
 
 #my $pipedir  = 'poe-named-pipe';
 #my $logdir   = 'logs';

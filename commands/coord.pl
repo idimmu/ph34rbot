@@ -6,11 +6,11 @@ push @::public_commands , 'coord';
 sub cmd_coord($$$$$) {
     my ($kernel, $heap, $who, $chan, $msg) = @_;
 
-    return unless $chan eq '#desse';
+    return unless lc($chan->[0]) eq '#desse';
     
     my $found = 0;
     my @coords;
-    foreach(@{$lists{'coords'}}){
+    foreach(@{$::lists{'coord'}}){
 	if(/$msg/i){
 	    $found = 1;
 	    push @coords, $_;
@@ -30,12 +30,12 @@ sub cmd_coord($$$$$) {
 	    if($found++ < 6){
 		$kernel->post( $::botalias, 'privmsg', $chan, "-> $_" );
 	    }else{
-		$kernel->post( $::botalias, 'privmsg', ${who{'nick'}}, "-> $_" );
+		$kernel->post( $::botalias, 'privmsg', $who->{'nick'}, "-> $_" );
 	    }
 	    
 	}
     }else{
-	$kernel->post( $::botalias, 'privmsg', $chan, "No info on $search" );
+	$kernel->post( $::botalias, 'privmsg', $chan, "No info on $msg" );
     }
 
 }
