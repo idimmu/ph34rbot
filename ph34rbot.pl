@@ -379,7 +379,7 @@ sub pgoogle{
   my $resultcount  = shift || return;
 
   #see the Net::Google documentation for more on this
-  my $google = Net::Google->new(key=>"9i+1UftQFHI1vMKrdKNU243OLYAGHhrQ");
+  my $google = Net::Google->new(key=>"THIS IS NOT A KEY");
   my $session = $google->search();
   $session->safe("");
 
