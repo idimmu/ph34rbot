@@ -13,7 +13,7 @@ sub cmd_vote($$$$$) {
 	my $kickee = lc $msg;
 	my $kicker = "$userinfo->{user}\@$userinfo->{host}";
 	
-	if ( $kickee eq $::botnick ) {
+	if ( $kickee eq lc($::botnick) ) {
 		$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $userinfo->{nick} No");
 #		$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $userinfo->{nick} No");
 		return ;
@@ -53,7 +53,7 @@ sub cmd_vote($$$$$) {
 			$kernel->post( $::botalias, 'privmsg', $chan, "You are the weakest link. Goodbye $kickee!" );
 			delete $::vote{$kickee};
 			
-			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $kickee Too many votes!");
+			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $kickee You are hated by $kickreason!");
 #			$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $kickee You are hated by $kickreason!");
 			return ;
 		}

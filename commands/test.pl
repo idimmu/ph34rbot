@@ -3,6 +3,8 @@ use warnings;
 
 push @::public_commands , 'test';
 
+#ignore this comment
+
 sub cmd_test($$$$$) {
 	my ($kernel, $heap, $who, $chan, $msg) = @_;
 	
