@@ -6,7 +6,7 @@ push @::public_commands , 'coord';
 sub cmd_coord($$$$$) {
     my ($kernel, $heap, $who, $chan, $msg) = @_;
 
-    return unless lc($chan->[0]) eq '#desse';
+    return unless lc($chan->[0]) eq '#desse' || lc($chan->[0]) eq '#sqrl-fu';
     
     my $found = 0;
     my @coords;
@@ -27,15 +27,10 @@ sub cmd_coord($$$$$) {
 		($a =~ /:(\d+)\s/)[0] <=> ($b =~ /:(\d+)\s/)[0]
 	    } @coords;
 	foreach (@sorted_coords){
-	    if($found++ < 6){
-		$kernel->post( $::botalias, 'privmsg', $chan, "-> $_" );
-	    }else{
-		$kernel->post( $::botalias, 'privmsg', $who->{'nick'}, "-> $_" );
-	    }
-	    
+	    $kernel->post( $::botalias, 'notice', $who->{'nick'}, "-> $_" );
 	}
     }else{
-	$kernel->post( $::botalias, 'privmsg', $chan, "No info on $msg" );
+	$kernel->post( $::botalias, 'notice', $who->{'nick'}, "No info on $msg" );
     }
 
 }

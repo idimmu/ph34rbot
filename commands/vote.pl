@@ -12,8 +12,8 @@ sub cmd_vote($$$$$) {
 	my $kicker = "$userinfo->{user}\@$userinfo->{host}";
 	
 	if ( $kickee eq $::botnick ) {
-#		$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban $chan $userinfo->{nick} No");
-		$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $userinfo->{nick} No");
+		$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $userinfo->{nick} No");
+#		$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $userinfo->{nick} No");
 		return ;
 	}
 	
@@ -30,7 +30,7 @@ sub cmd_vote($$$$$) {
 		if( exists $::vote{$kickee}{$kicker} ) {
 			# Double vote. Nigger.
 			$kernel->post( $::botalias, 'privmsg', $chan, "Don't be a nigger $userinfo->{nick}." );
-			#return ;
+			return ;
 		}
 		
 		++$::vote{$kickee}{total};
@@ -42,7 +42,7 @@ sub cmd_vote($$$$$) {
 			$kernel->post( $::botalias, 'privmsg', $chan, "You are the weakest link. Goodbye $kickee!" );
 			delete $::vote{$kickee};
 			
-			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban $chan $kickee Too many votes!");
+			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $kickee Too many votes!");
 			return ;
 		}
 		
