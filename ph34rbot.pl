@@ -31,7 +31,10 @@ my %files = (
   'url'  => "$0.urldb",
   'todo' => "$0.todo",
   'help' => "$0.help",
+  'ban' => "$0.ban",
+  'coord' => "$0.coord",
 );
+
 
 #%::lists; # corresponding names to those in %files
 
@@ -39,7 +42,7 @@ my %channels; # add channels here on join, elements are currently not used, but 
 #$::target; #pcamp target
 #$::targchan;
 
-my $server   = shift       || 'firefly.no.eu.netgamers.org';
+my $server   = shift       || 'london.uk.eu.netgamers.org';
 my $port     = shift       || '6667';
 my $username = shift       || 'camper';
 my $ircname  = @ARGV ? join (' ', @ARGV)  : 'evil l33t';
