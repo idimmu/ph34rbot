@@ -29,10 +29,6 @@ sub irc_public{
   my ($kernel, $heap, $who, $chan, $msg) = @_[KERNEL, HEAP, ARG0 .. ARG2];
   (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or die "Erroneous who: $who";
   log_chan_event(@$chan[0], "<$nick> $msg");
-  if(@$chan[0] eq '#badninja'){
-      $kernel->post( $::botalias, 'privmsg', '#immortals', "#badninja: <$nick> $msg" );
-      return;
-  }
   
   my %userinfo = (
   	'full' => $who ,
@@ -162,71 +158,6 @@ sub irc_public{
     }else{
       $kernel->post( $::botalias, 'privmsg', $chan, "Server reported: $!. Error adding todo '$todo'");
     }
-
-  }elsif($msg =~ /^paddcontact\s*(.*)$/i && @$chan[0] eq '#immortals'){
-      my $full_match = $1;
-      if($full_match =~ /^(\S+)\s+(\+?\d+)\s*(.*)/){
-	  my $contact_info = join ' ',$1, $2, $3;
-	  my $check = append_file($contact_info, 'contact');
-	  if($check){
-	      $kernel->post( $::botalias, 'privmsg', $chan, "Added Contact -> $contact_info" );
-	  }else{
-	      $kernel->post( $::botalias, 'privmsg', $chan, "Server reported: $!. Error adding contact '$contact_info'" );
-	  }
-      }else{
-	  $kernel->post( $::botalias, 'privmsg', $chan, "Please use format '<nick> +<phonenumber> <other relevant info>" );
-      }
-  }elsif($msg =~ /^pcontact\s*(.+)$/i && @$chan[0] eq '#immortals'){
-      my $search = $1;
-      my $found = 0;
-      foreach (@{$::lists{'contact'}}){
-	  if(/$search/i){
-	      $kernel->post( $::botalias, 'privmsg', $chan, "Contact info: $_" );
-	      $found = 1;
-	  }
-      }
-      $kernel->post( $::botalias, 'privmsg', $chan, "No info on $search" ) unless $found;
-  }elsif($msg =~ /^pcoord\s*(.+)$/i && lc(@$chan[0]) eq '#desse'){
-      my $search = $1;
-      my $found = 0; 
-      my @coords;
-      foreach (@{$::lists{'coords'}}){
-	  if(/$search/i){
-	      #$kernel->post( $::botalias, 'privmsg', $chan, "-> $_" );
-	      $found = 1;
-	      push @coords, $_;
-	  } 
-      }
-      if($found){
-	  # welcome to the sort from hell! (do cluster, then parallel, then z coord)
-	  my @sorted_coords;
-	  @sorted_coords =  sort { 
-	      ($a =~ /^(\d+)/)[0] <=> ($b =~ /^(\d+)/)[0]
-	                         ||
-	      ($a =~ /:(\d+)/)[0] <=> ($b =~ /:(\d+)/)[0]
-	                         ||
-	      ($a =~ /:(\d+)\s/)[0] <=> ($b =~ /:(\d+)\s/)[0]
-	   } @coords;
-	  foreach (@sorted_coords){
-	      $kernel->post( $::botalias, 'privmsg', $chan, "-> $_" );
-	  }	       
-      }else{
-	  $kernel->post( $::botalias, 'privmsg', $chan, "No info on $search" );
-      }
- }elsif($msg =~ /^paddcoord\s*(.+)$/i && lc(@$chan[0]) eq '#desse'){
-      my $add = $1;
-      if($add =~ /^(\d\d?\d?:\d\d?:\d\d?)\s+(\S+)\s+(P|F|N|E)$/){
-	  my $input = join ' ',$1,$2,$3;
-	  my $check = append_file($input, 'coords');
-	  if($check){
-	      $kernel->post( $::botalias, 'privmsg', $chan, "Added coords -> $input" );
-	  }else{
-	      $kernel->post( $::botalias, 'privmsg', $chan, "Server reported: $!. Error adding coords: '$input'" );
-	  }
-      }else{
-	  $kernel->post( $::botalias, 'privmsg', $chan, "Use the format 'paddcoord nick xxx:xx:xx P/F/N/E' (Pr0nstar, Friend, Neutral, Enemy)" );
-      }
-      
   }elsif($msg =~ /^phelp\s*(.*)$/i){
     my $search = $1;
     if($search){
