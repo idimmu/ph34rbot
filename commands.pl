@@ -8,7 +8,6 @@ use warnings;
 	addhelp
 	addquote
 	addurl
-	camp
 	contact
 	coord
 	cur
@@ -16,7 +15,6 @@ use warnings;
 	e2
 	google
 	help
-	nocamp
 	quote
 	roll
 	url
@@ -112,13 +110,6 @@ sub irc_public{
     }else{
       $kernel->post( $::botalias, 'privmsg', $chan, "Server reported: $!. Error adding quote '$1'" );
     }
-  }elsif($msg =~ /^paddcamp\s*(.+)$/i){
-    my $check = append_file($1, 'camp');
-    if($check){
-      $kernel->post( $::botalias, 'privmsg', $chan, "Added camp attack -> $1" );
-    }else{
-      $kernel->post( $::botalias, 'privmsg', $chan, "Server reported: $!. Error adding camp attack '$1'" );
-    }
   }elsif($msg =~ /^paddurl\s*(.+)$/i){ # someone's adding a url
     my $url = $1;
 
@@ -141,43 +132,6 @@ sub irc_public{
     # urlify the query, then staple it on the end of the e2 url.
     # some day I'll make it check for actual existance of a requested node and possibly return
     # suggestions based on the search if it doesn't find a node... some day...
-  }elsif($msg =~ /^pcamp\s*(.*)$/i){
-    my $tg = $1;
-    $tg =~ s/^\s+//;
-    $tg =~ s/\s+$//;
-    my $valid = 0;
-    if($::target ){ # && $nick eq $::target){
-      $kernel->post( $::botalias, 'privmsg', $chan, "Can't you see I'm busy? Fuck off!" );
-      return;
-    }
-    $::target = $nick;
-    $::targchan = $chan;
-    my $randtime = int(rand(300)) + 300;
-    $kernel->delay( uncamp => $randtime );
-
-    
-    $kernel->post( $::botalias, 'privmsg', $chan, "You're my bitch now, Dave" );
-    
-#    foreach(keys %channels){
-#      if($channels{$_}{$tg}){
-#        $valid = 1;
-#      }
-#    }
-#    if($valid){
-#      $::target = $tg;
-#      $kernel->post( $::botalias, 'privmsg', $chan, "Target acquired, now camping $::target" );
-#      $targchan = $chan;
-#      my $randtime = int(rand(300)) + 300;
-#      $kernel->delay( uncamp => $randtime );
-#    }else{
-#      $kernel->post( $::botalias, 'privmsg', $chan, "$tg is not a valid target" );
-#    }
-  }elsif($msg =~ /^pnocamp.*$/i){
-    if($::target){ # && $nick ne $::target){
-      #$::target = 0;
-      #$kernel->post( $::botalias, 'privmsg', $chan, "Target deleted");
-	$kernel->post( $::botalias, 'privmsg', $chan, "I'm a bot with a mission, get out of my way puny human." );
-    }
   }elsif($msg =~ /^ptodo\s*(.*)$/i){
     my $todo = $1;
     if(!$todo || $todo =~ /^next|=(\d+)$/){
@@ -286,7 +240,7 @@ sub irc_public{
       my $help = "ph34rbot help: ";
       $help .= "To use phelp do 'phelp regex' where regex is your search.";
       $kernel->post( $::botalias, 'privmsg', $chan, "$help" );
-      $help = "Valid commands are: pgoogle, paddurl, purl, paddquote, pquote, pe2, proll, pcamp, pnocamp, ptodo";
+      $help = "Valid commands are: pgoogle, paddurl, purl, paddquote, pquote, pe2, proll, pcur, pdict, ptodo";
       if($chan eq '#immortals'){
         $help .= ", paddcontact, pcontact";
       }
@@ -362,15 +316,6 @@ sub irc_public{
       #template for next action
   }
       
-  if($::target && $nick eq $::target){
-    if(rand(1) <= 0.35){
-      #$kernel->post( $::botalias, 'privmsg', $chan, "Shut the fuck up");
-      my ( $insult, undef, undef ) = random_list_element('', 'camp');
-      $kernel->post( $::botalias, 'privmsg', $chan, $insult );
-    }elsif( $::target eq 'DMZ' && rand(1) <= 0.2){
-      $kernel->post( $::botalias, 'privmsg', $chan, "DMZ is a crack smoking donkey fucker" );
-    }
-  }
   $heap->{seen_traffic} = 1;
 }
 

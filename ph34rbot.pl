@@ -306,14 +306,6 @@ sub irc_topic{
   log_chan_event( $chan, "Topic changed on $chan by $who: $text");
 }
 
-sub uncamp{
-  my ($kernel) = $_[ KERNEL ];
-  if($::target){
-    $kernel->post( $::botalias, 'privmsg', $::targchan, "Target deleted (was $::target)" ) 
-   }
-  $::target = 0;
-}
-
 
 ###############################################################################
 # Helper methods for the IRC bot
