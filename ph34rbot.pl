@@ -30,10 +30,7 @@ my %files = (
   'quote' => "$0.quote",
   'url'  => "$0.urldb",
   'todo' => "$0.todo",
-  'camp' => "$0.camp",
-  'contact' => "$0.contact",
   'help' => "$0.help",
-  'coords' => "$0.coords",
 );
 
 #%::lists; # corresponding names to those in %files
