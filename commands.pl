@@ -2,23 +2,7 @@ use strict;
 use warnings;
 
 @::public_commands = qw(
-	addcamp
-	addcontacts
-	addcoord
-	addhelp
-	addquote
-	addurl
-	contact
-	coord
-	cur
-	dict
-	e2
-	google
-	help
-	quote
-	roll
-	url
-	todo
+			reload
 );
 
 require "commands/roll.pl";
@@ -69,6 +53,28 @@ sub irc_public{
   
   # Did we find a dynamic command? If not, continue.
   return unless $@;
+
+  if($command =~ /reload/){
+      if($parameter =~ /^\w+$/ && -f "commands/$parameter.pl"){
+	  #@INC = grep {!/$parameter.pl/} @INC; # Jeekay are dumb
+	  
+	  if(exists $INC{"commands/$parameter.pl"}){
+	      delete $INC{"commands/$parameter.pl"};
+	  }
+	  
+	  eval {
+	      require "commands/$parameter.pl";
+	  };
+	  if($@){
+	      $kernel->post( $::botalias, 'privmsg', $chan, "preload: Failed to reload $parameter" );
+	  }else{
+	      $kernel->post( $::botalias, 'privmsg', $chan, "preload: Reloaded $parameter" );
+	  }
+      }else{
+	  $kernel->post( $::botalias, 'privmsg', $chan, "preload: $parameter is not a valid command file or command file name" );
+      }
+
+  }
   
   # static commands go here?
 }

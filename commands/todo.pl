@@ -38,16 +38,16 @@ push @::public_commands , 'todo';
 sub cmd_todo($$$$$) {
     my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
 	
+    
     if(!$msg || $msg =~ /^(\d+)$/){
-	my $elem = $1 || 1;
-	$elem--;
-	
+	my $elem = 1;
+	$elem = $1 if $msg;
+		
 	$elem = @{$::lists{'todo'}} if $elem > @{$::lists{'todo'}};
 
-	my $print = ${$::lists{'todo'}}[$elem]; 
+	my $print = ${$::lists{'todo'}}[$elem - 1]; 
 	my $total = @{$::lists{'todo'}};
 	
-	$elem++;
 	$kernel->post( $::botalias, 'privmsg', $chan, "ptodo $elem (of $total) ->  $print" );
     }elsif($msg =~ /^delnext|del=(\d+)$/){
 	my $elem = $1 || 1;
