@@ -21,7 +21,7 @@ my $logdir   = '/home/jester/in228/stable/logs';
 
 $::botalias = 'ph34rbot'; # www.megatokyo.com
 $::botnick  = $::botalias; # current nickname the bot has registered with the server
-my %cservice = ( # This'll be useful later
+%::cservice = ( # This'll be useful later
   'nick' => 'P@cservice.netgamers.org',
   'who'  => 'P!cservice@netgamers.org',
 );
@@ -136,7 +136,7 @@ sub irc_001{
   my ($kernel) = $_[KERNEL];
 
   $kernel->post( $::botalias, 'mode', $::botnick, '+ix');
-  $kernel->post( $::botalias, 'privmsg', $cservice{'nick'}, 'auth ph34rbot armageddon');
+  $kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, 'auth ph34rbot armageddon');
   $kernel->post( $::botalias, 'join', '#tset');
 }
 
@@ -236,7 +236,7 @@ sub irc_quit{
 #someone has invited the bot to a channel
 sub irc_invite{
   my ($kernel, $who, $chan) = @_[KERNEL, ARG0..ARG1];
-  if($who eq $cservice{'who'}){#always follow an invite given by a chanservice
+  if($who eq $::cservice{'who'}){#always follow an invite given by a chanservice
     $kernel->post( $::botalias, 'join', $chan);
   }
   #$who =~ s/^(.*)!.*$/$1/ or die "Erroneous who: $who";

@@ -5,19 +5,20 @@ use warnings;
 			reload
 );
 
+require "commands/addhelp.pl";
+require "commands/addquote.pl";
+require "commands/addurl.pl";
+require "commands/cur.pl";
+require "commands/dict.pl";
+require "commands/e2.pl";
+require "commands/google.pl";
+require "commands/help.pl";
+require "commands/quote.pl";
 require "commands/roll.pl";
 require "commands/test.pl";
-require "commands/url.pl";
-require "commands/addurl.pl";
-require "commands/quote.pl";
-require "commands/addquote.pl";
-require "commands/e2.pl";
 require "commands/todo.pl";
-require "commands/help.pl";
-require "commands/addhelp.pl";
-require "commands/google.pl";
-require "commands/dict.pl";
-require "commands/cur.pl";
+require "commands/url.pl";
+require "commands/vote.pl";
 
 
 # PRIVMSG to a public channel received, this is where we process normal commands
