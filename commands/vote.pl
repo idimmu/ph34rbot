@@ -6,7 +6,7 @@ push @::public_commands , 'vote';
 sub cmd_vote($$$$$) {
 	my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
 	
-	return unless $msg =~ /^([A-Za-z0-9]+)/ ;
+	return unless $msg =~ /^([A-Za-z0-9_\-[]\\`\^{}|]+)/ ;
 	
 	my $special = '^(time|total)$';
 
