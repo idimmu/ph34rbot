@@ -1,23 +1,23 @@
 my @public_commands = qw(
-	paddcamp
-	paddcontacts
-	paddcoord
-	paddhelp
-	paddquote
-	paddurl
-	pcamp
-	pcontact
-	pcoord
-	pcur
-	pdict
-	pe2
-	pgoogle
-	phelp
-	pnocamp
-	pquote
-	proll
-	purl
-	ptodo
+	addcamp
+	addcontacts
+	addcoord
+	addhelp
+	addquote
+	addurl
+	camp
+	contact
+	coord
+	cur
+	dict
+	e2
+	google
+	help
+	nocamp
+	quote
+	roll
+	url
+	todo
 );
 
 # PRIVMSG to a public channel received, this is where we process normal commands
@@ -26,16 +26,19 @@ sub irc_public{
   (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or die "Erroneous who: $who";
   log_chan_event(@$chan[0], "<$nick> $msg");
   if(@$chan[0] eq '#badninja'){
-    $kernel->post( $botalias, 'privmsg', '#immortals', "#badninja: <$nick> $msg" );
-    return;
+      $kernel->post( $botalias, 'privmsg', '#immortals', "#badninja: <$nick> $msg" );
+      return;
   }
   
+  printf("$msg\n");
   return unless $msg =~ /^p(\S+) /;
-  
+
   my $command = $1;
-  
+
+  printf("$command\n");
   return unless grep /^$command$/ , @public_commands;
   
+  printf("yay\n");
   if($msg =~ /^pgoogle (.*?)(\s\d\d?)?$/i){ # asking for a google
     #$kernel->post( $botnick, 'privmsg', $chan, 'pgoogle currently down due to excessive shitness' );
     #return;

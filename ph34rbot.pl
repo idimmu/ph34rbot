@@ -14,7 +14,7 @@ use Fcntl ':flock';
 # My variables
 
 my $pipedir  = '/home/jester/html/poe-named-pipe';
-my $logdir   = '/home/jester/in228/stable/logs';
+my $logdir   = '/home/jester/wd/logs';
 
 #my $pipedir  = 'poe-named-pipe';
 #my $logdir   = 'logs';
@@ -79,6 +79,8 @@ POE::Component::IRC->new( 'ph34rbot' ) or
 
 $ua->agent("Lynx/2.8.5rel.1 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/0.8.12");
 #we lie and say we're lynx
+
+require "commands.pl";
 
 #and hook these subroutines
 POE::Session->new( 'main' => [qw( _start _stop irc_001 irc_disconnected
