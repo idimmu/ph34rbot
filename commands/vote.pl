@@ -14,8 +14,9 @@ sub cmd_vote($$$$$) {
 	my $kicker = "$userinfo->{user}\@$userinfo->{host}";
 	
 	if ( $kickee eq lc($::botnick) ) {
-		$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $userinfo->{nick} No");
-#		$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $userinfo->{nick} No");
+		my $autoban = "ban @{$chan}[0] $userinfo->{nick} No";
+		$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, $autoban);
+#		$kernel->post( $::botalias, 'privmsg', 'GK|green', $autoban);
 		return ;
 	}
 	
@@ -53,8 +54,9 @@ sub cmd_vote($$$$$) {
 			$kernel->post( $::botalias, 'privmsg', $chan, "You are the weakest link. Goodbye $kickee!" );
 			delete $::vote{$kickee};
 			
-			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $kickee You are hated by $kickreason!");
-#			$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $kickee You are hated by $kickreason!");
+			my $message = "ban @{$chan}[0] $kickee You are hated by $kickreason!";
+			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, $message);
+#			$kernel->post( $::botalias, 'privmsg', 'GK|green', $message);
 			return ;
 		}
 		
