@@ -3,7 +3,7 @@
 use warnings;
 use strict;
 
-use Net::Google;
+#use Net::Google;
 use POE;
 use POE::Component::IRC;
 use LWP::Simple qw(get $ua);
@@ -19,8 +19,8 @@ my $logdir   = '/home/jester/wd/logs';
 #my $pipedir  = 'poe-named-pipe';
 #my $logdir   = 'logs';
 
-my $botalias = 'ph34rbot'; # www.megatokyo.com
-my $botnick  = $botalias; # current nickname the bot has registered with the server
+$::botalias = 'ph34rbot'; # www.megatokyo.com
+$::botnick  = $::botalias; # current nickname the bot has registered with the server
 my %cservice = ( # This'll be useful later
   'nick' => 'P@cservice.netgamers.org',
   'who'  => 'P!cservice@netgamers.org',
@@ -35,11 +35,12 @@ my %files = (
   'help' => "$0.help",
   'coords' => "$0.coords",
 );
-my %lists; # corresponding names to those in %files
+
+#%::lists; # corresponding names to those in %files
 
 my %channels; # add channels here on join, elements are currently not used, but later additions may change this
-my $target; #pcamp target
-my $targchan;
+#$::target; #pcamp target
+#$::targchan;
 
 my $server   = shift       || 'firefly.no.eu.netgamers.org';
 my $port     = shift       || '6667';
@@ -64,7 +65,7 @@ unless(-d "$logdir/$server"){
   mkdir "$logdir/$server", 0700;
 }
 
-# read quotes, urls and any other files into %lists
+# read quotes, urls and any other files into %::lists
 foreach (keys %files){
   read_file($_);
 }
@@ -106,8 +107,8 @@ exit 0;
 sub _start{
   my ( $kernel ) = $_[ KERNEL ];
 
-  $kernel->alias_set( $botalias );
-  $kernel->post( $botalias, 'register', 'all');
+  $kernel->alias_set( $::botalias );
+  $kernel->post( $::botalias, 'register', 'all');
   # we're interested in hearing about all events
   # Keep-alive timer.
   #$kernel->delay( autoping => 300 );
@@ -134,9 +135,9 @@ sub _default {
 sub irc_001{
   my ($kernel) = $_[KERNEL];
 
-  $kernel->post( $botalias, 'mode', $botnick, '+ix');
-  $kernel->post( $botalias, 'privmsg', $cservice{'nick'}, 'auth ph34rbot armageddon');
-  $kernel->post( $botalias, 'join', '#linux');
+  $kernel->post( $::botalias, 'mode', $::botnick, '+ix');
+  $kernel->post( $::botalias, 'privmsg', $cservice{'nick'}, 'auth ph34rbot armageddon');
+  $kernel->post( $::botalias, 'join', '#linux');
 }
 
 # WHO query reply, used to compile IAL, and
@@ -183,9 +184,9 @@ sub irc_socketerr{
 sub irc_join{
   my ( $kernel, $who, $chan ) = @_[ KERNEL, ARG0..ARG1 ];
   (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or die "Erroneous who: $who";
-  if($nick eq $botnick){ #the bot joined a channel, add it to the hash
-    $channels{$chan}{$botnick} = [( $botnick, $user, $host, $ircname, undef )];
-    $kernel->post( $botalias, 'who', $chan ); # going to need a list of users to build the IAL
+  if($nick eq $::botnick){ #the bot joined a channel, add it to the hash
+    $channels{$chan}{$::botnick} = [( $::botnick, $user, $host, $ircname, undef )];
+    $kernel->post( $::botalias, 'who', $chan ); # going to need a list of users to build the IAL
   }else{
     $channels{$chan}{$nick} = [($nick, $user, $host, undef, undef)]; # keep the IAL up-to-date
     #log_chan_event( $chan, "* Joins: $nick ($user\@$host)" );
@@ -199,7 +200,7 @@ sub irc_part{
   my ($kernel, $who, $chan) = @_[KERNEL, ARG0 .. ARG1];
   (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or die "Erroneous who: $who";
   $chan =~ s/^(\#\S+)\s+.*/$1/g;
-  if($nick eq $botnick){
+  if($nick eq $::botnick){
     delete $channels{$chan}; # the bot parted a channel, delete it from the hash
   }else{
     delete $channels{$chan}{$nick}; # don't need that anymore
@@ -212,10 +213,11 @@ sub irc_part{
 # there's a bug in here somewhere, cba to sort it
 sub irc_kick{
   my ($kernel, $who, $chan, $kicked, $reason) = @_[KERNEL, ARG0 .. ARG3];
-  (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or (my $nick = $who);
+  my ($kicker, $user, $host);
+  ($kicker, $user, $host) = ($who =~ /^(.*)!(.*)@(.*)$/) or ($kicker = $who);
   delete $channels{$chan}{$kicked};
   #log_chan_event( $chan, "* $kicked was kicked by $who ($reason)");
-  log_chan_event( $chan, "$kicked kicked from $chan by $nick: $reason");
+  log_chan_event( $chan, "$kicked kicked from $chan by $kicker: $reason");
 }
 
 # IRC Quit
@@ -235,7 +237,7 @@ sub irc_quit{
 sub irc_invite{
   my ($kernel, $who, $chan) = @_[KERNEL, ARG0..ARG1];
   if($who eq $cservice{'who'}){#always follow an invite given by a chanservice
-    $kernel->post( $botalias, 'join', $chan);
+    $kernel->post( $::botalias, 'join', $chan);
   }
   #$who =~ s/^(.*)!.*$/$1/ or die "Erroneous who: $who";
   # uncomment the above line if more action is to be taken on invites by non services
@@ -245,7 +247,7 @@ sub irc_invite{
 sub irc_mode{
   my ( $kernel, $who, $chan, $mode, @targets ) = @_[ KERNEL, ARG0..$#_];
   my ($nick, $user, $host);
-  (($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or (my $nick = $who);
+  (($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or ($nick = $who);
   if($chan =~ /^\#/){
     log_chan_event( $chan, "$chan: mode change '$mode ".join(' ', @targets)."' by $who");
   }else{
@@ -257,13 +259,13 @@ sub irc_mode{
 sub irc_nick{
   my ( $kernel, $who, $newnick ) = @_[ KERNEL, ARG0..ARG1 ];
   (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or die "Erroneous who: $who";
-  if($nick eq $botnick){# my nick was changed
+  if($nick eq $::botnick){# my nick was changed
     foreach (keys %channels){
-      $channels{$_}{$newnick}=[$channels{$_}{$botnick}];
-      delete $channels{$_}{$botnick};
+      $channels{$_}{$newnick}=[$channels{$_}{$::botnick}];
+      delete $channels{$_}{$::botnick};
       @{$channels{$_}{$newnick}}[0]=$newnick;
     }
-    $botnick = $newnick;
+    $::botnick = $newnick;
   }else{
     # Keep the IAL in order!
     foreach (keys %channels){
@@ -275,8 +277,8 @@ sub irc_nick{
         log_chan_event( $_, "Nick change: $nick -> $newnick");
       }
     }
-    if($target && $target eq $nick){
-      $target = $newnick;
+    if($::target && $::target eq $nick){
+      $::target = $newnick;
     }
   }
 }
@@ -286,15 +288,16 @@ sub irc_433{
   my $kernel = $_[ KERNEL ];
 
   #my $nick = gen_random_nick();
-  my $nick =$botalias."-".int(rand(1000));
-  $kernel->post( $botalias, 'nick', $nick );
+  my $nick = $::botalias."-".int(rand(1000));
+  $kernel->post( $::botalias, 'nick', $nick );
 }
 
 # the most common ctcp event, usually the /me command on a client, used for logging
 sub irc_ctcp_action{
-  my ($kernel, $who, $target, $text) = @_[ KERNEL, ARG0..ARG2 ];
+  my ($kernel, $who, $text);
+  ($kernel, $who, $::target, $text) = @_[ KERNEL, ARG0..ARG2 ];
   (my ($nick, $user, $host) = $who =~ /^(.*)!(.*)@(.*)$/) or die "Erroneous who: $who";
-  log_chan_event( @$target[0], "Action: $nick $text");
+  log_chan_event( @$::target[0], "Action: $nick $text");
 }
 
 # new topic set, better log that
@@ -304,11 +307,11 @@ sub irc_topic{
 }
 
 sub uncamp{
-  my ($kernel) = @_[ KERNEL ];
-  if($target){
-    $kernel->post( $botalias, 'privmsg', $targchan, "Target deleted (was $target)" ) 
+  my ($kernel) = $_[ KERNEL ];
+  if($::target){
+    $kernel->post( $::botalias, 'privmsg', $::targchan, "Target deleted (was $::target)" ) 
    }
-  $target = 0;
+  $::target = 0;
 }
 
 
@@ -318,8 +321,8 @@ sub uncamp{
 # a general connection sub
 sub spawn_connection{
   my $kernel=shift;
-  $kernel->post( $botalias, 'connect', {  Debug     => 0,
-                                          Nick      => $botalias,
+  $kernel->post( $::botalias, 'connect', {  Debug     => 0,
+                                          Nick      => $::botalias,
                                           Server    => $server,
                                           Port      => $port,
                                           Username  => $username,
@@ -331,7 +334,7 @@ sub spawn_connection{
 
 sub autoping {
   my ($kernel, $heap) = @_[KERNEL, HEAP];
-  $kernel->post( $botalias, 'userhost', $botnick ) unless $heap->{seen_traffic};
+  $kernel->post( $::botalias, 'userhost', $::botnick ) unless $heap->{seen_traffic};
   $heap->{seen_traffic} = 0;
   $kernel->delay( autoping => 300 );
 }
@@ -351,16 +354,16 @@ sub log_chan_event {
   close(CHANLOG);
 }
 
-#read file takes one argument, a string that matches a key in %files. Info goes into an array in %lists with corresponding key
+#read file takes one argument, a string that matches a key in %files. Info goes into an array in %::lists with corresponding key
 # returns undef on failure
 sub read_file{
   my $key = shift || return;
   my $filename = $files{$key} || return;
-  delete $lists{$key}; #if(@{$lists{key}}); #empty the list if it has elements
+  delete $::lists{$key}; #if(@{$::lists{key}}); #empty the list if it has elements
   open(INFILE, "<$filename") or return;
   while(<INFILE>){
     chomp($_);
-    push(@{$lists{$key}}, $_);
+    push(@{$::lists{$key}}, $_);
   }
   close(INFILE);
   return 1;
@@ -374,7 +377,7 @@ sub append_file{
   open(APPFILE, ">>$filename") or return;
   print APPFILE "$text\n";
   close(APPFILE);
-  push(@{$lists{$key}}, $text);
+  push(@{$::lists{$key}}, $text);
   return 1;
 }
 
@@ -430,8 +433,9 @@ sub multiline_reformat{
 sub random_list_element{
   my $search   =  shift;
   my $listname =  shift;
-  return unless $lists{$listname};
+  return unless $::lists{$listname};
   my $desindex;
+  my $randnr;
   if($search =~ s/^=(\d+)\s*//){
     $desindex = $1;
   }
@@ -439,19 +443,19 @@ sub random_list_element{
     #build a list of matching quotes, get a random quote from them
     my @tmp;
 
-    foreach (@{$lists{$listname}}){
+    foreach (@{$::lists{$listname}}){
       push(@tmp,$_) if eval {/$search/i} || index($_, $search) > -1;
     }
     return unless @tmp;
-    my $randnr = $desindex || int(rand(@tmp));
+    $randnr = $desindex || int(rand(@tmp));
     $randnr-- if $desindex;
     #$randnr = $randnr > $#tmp ? $#tmp : $randnr;
     return $tmp[$randnr], $randnr+1, scalar(@tmp);
   }else{
-    my $randnr = $desindex || int(rand(scalar(@{$lists{$listname}})));
+    $randnr = $desindex || int(rand(scalar(@{$::lists{$listname}})));
     $randnr-- if $desindex;
-    #$randnr = $randnr > scalar(@{$lists{$listname}}) ? scalar(@{$lists{$listname}}) : $randnr;
-    return ${$lists{$listname}}[$randnr], $randnr+1, scalar(@{$lists{$listname}});
+    #$randnr = $randnr > scalar(@{$::lists{$listname}}) ? scalar(@{$::lists{$listname}}) : $randnr;
+    return ${$::lists{$listname}}[$randnr], $randnr+1, scalar(@{$::lists{$listname}});
     #say that three time fast
   }
   # should never make it here
@@ -481,9 +485,9 @@ sub del_list_element{
   seek(FILE, 0, 2);# and, in case someone appended while we were waiting...
 
   foreach (@numbs){
-    splice(@{$lists{$listhandle}}, $_, 1);
+    splice(@{$::lists{$listhandle}}, $_, 1);
   }
-  foreach (@{$lists{$listhandle}}){
+  foreach (@{$::lists{$listhandle}}){
     print FILE "$_\n";
   }
   flock(FILE, LOCK_UN);
@@ -580,7 +584,7 @@ sub server_session_start {
         InputEvent => 'got_client_input',
         ErrorEvent => 'got_client_error',
       );
-    $heap->{client}->put( "CONNECTED $botalias" );
+    $heap->{client}->put( "CONNECTED $::botalias" );
 }
 
 # The server session received some input from its attached client.
@@ -600,20 +604,20 @@ sub server_session_input {
         $output = "FAILURE UPDATE $1: Not a valid file key";
       }
     }elsif($input =~ /^IRCPRIVMSG (\S+) (.*)/){
-      $kernel->post($botalias, 'privmsg', $1, $2);
+      $kernel->post($::botalias, 'privmsg', $1, $2);
       $output = "SUCCESS PRIVMSG $1 $2";
     }elsif($input =~ /^IRCACTION (\S+) (.*)/){
-      $kernel->post( $botalias, lc($1), $2);
+      $kernel->post( $::botalias, lc($1), $2);
       $output = "SUCCESS $1 $2";
     }elsif($input =~ /^CHANLIST$/){
       $output = "SUCCESS CHANLIST " . join(' ', sort(keys(%channels)));
     }elsif($input =~ /^FILELIST$/){
       $output = "SUCCESS FILELIST " . join(' ', sort(keys(%files)));
     }elsif($input =~ /^LISTCONTENTS (\S+)$/){
-      if($lists{$1}){
+      if($::lists{$1}){
         my $counter = 0;
-        my $listlength = $#{$lists{$1}};
-        foreach (@{$lists{$1}}){
+        my $listlength = $#{$::lists{$1}};
+        foreach (@{$::lists{$1}}){
           $heap->{client}->put("SUCCESS LISTCONTENTS $counter $listlength $_");
           $counter++;
         }
