@@ -32,7 +32,7 @@ push @::public_commands , 'roll';
 #  }
 
 sub cmd_roll($$$$$) {
-	my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
+        my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
 	
 	return unless $msg =~ /^(\d*)(#)?(\d+)d(\d+)([+-]\d+)?/;
 	
@@ -40,8 +40,8 @@ sub cmd_roll($$$$$) {
 	  ($1, $2, $3, $4, $5);
 	
 	$numrolls = 1 unless $numrolls;
-	
-	print "$numrolls, $hash, $diceperroll, $numsides, $modifier\n";
+				      
+        #print "$numrolls, $hash, $diceperroll, $numsides, $modifier\n";
 	
 	my @results;
 	my $total;

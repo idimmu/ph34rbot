@@ -89,7 +89,7 @@ POE::Session->new( 'main' => [qw( _start _stop irc_001 irc_disconnected
                                  irc_invite irc_part irc_disconnected
                                  irc_quit irc_kick irc_mode irc_352
                                  irc_nick irc_433 irc_ctcp_action irc_topic
-				 autoping uncamp)] );
+				 autoping)] );
 
 
 $poe_kernel->run();  ### Nothing below here will execute
@@ -137,7 +137,7 @@ sub irc_001{
 
   $kernel->post( $::botalias, 'mode', $::botnick, '+ix');
   $kernel->post( $::botalias, 'privmsg', $cservice{'nick'}, 'auth ph34rbot armageddon');
-  $kernel->post( $::botalias, 'join', '#linux');
+  $kernel->post( $::botalias, 'join', '#tset');
 }
 
 # WHO query reply, used to compile IAL, and
@@ -428,7 +428,7 @@ sub random_list_element{
   return unless $::lists{$listname};
   my $desindex;
   my $randnr;
-  if($search =~ s/^=(\d+)\s*//){
+  if($search && $search =~ s/^=(\d+)\s*//){
     $desindex = $1;
   }
   if($search){
