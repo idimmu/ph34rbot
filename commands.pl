@@ -1,23 +1,23 @@
 my @public_commands = qw(
-	pgoogle
-	purl
-	pquote
-	paddquote
 	paddcamp
-	paddurl
-	pe2
-	proll
-	pcamp
-	pnocamp
-	ptodo
 	paddcontacts
+	paddcoord
+	paddhelp
+	paddquote
+	paddurl
+	pcamp
 	pcontact
 	pcoord
-	paddcoord
-	phelp
-	paddhelp
 	pcur
 	pdict
+	pe2
+	pgoogle
+	phelp
+	pnocamp
+	pquote
+	proll
+	purl
+	ptodo
 );
 
 # PRIVMSG to a public channel received, this is where we process normal commands
@@ -30,7 +30,7 @@ sub irc_public{
     return;
   }
   
-  return unless $msg =~ /^p(\s+) /;
+  return unless $msg =~ /^p(\S+) /;
   
   my $command = $1;
   
