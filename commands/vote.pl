@@ -8,6 +8,8 @@ sub cmd_vote($$$$$) {
 	
 	return unless $msg =~ /^([A-Za-z0-9]+)/ ;
 	
+	my $special = '^(time|total)$';
+	
 	my $kickee = lc $msg;
 	my $kicker = "$userinfo->{user}\@$userinfo->{host}";
 	
@@ -18,7 +20,7 @@ sub cmd_vote($$$$$) {
 	}
 	
 	if( not exists $::vote{$kickee} ) {
-		$::vote{$kickee}{$kicker} = scalar time;
+		$::vote{$kickee}{$kicker} = $userinfo->{nick};
 		$::vote{$kickee}{time} = scalar time;
 		$::vote{$kickee}{total} = 1;
 		
@@ -35,14 +37,24 @@ sub cmd_vote($$$$$) {
 		
 		++$::vote{$kickee}{total};
 		$::vote{$kickee}{time} = scalar time;
-		$::vote{$kickee}{$kicker} = scalar time;
+		$::vote{$kickee}{$kicker} = $userinfo->{nick};
 		
 		# Time to kick?
 		if( $::vote{$kickee}{total} >= 3 ) {
+			# Construct comedy string
+			my @haters;
+			foreach my $key (keys %{$::vote{$kickee}}) {
+				next if $key =~ /$special/;
+				push @haters , $::vote{$kickee}{$key};
+			}
+			@haters = sort @haters;
+			my $kickreason = "$haters[0], $haters[1] and $haters[2]";
+		
 			$kernel->post( $::botalias, 'privmsg', $chan, "You are the weakest link. Goodbye $kickee!" );
 			delete $::vote{$kickee};
 			
 			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, "ban @{$chan}[0] $kickee Too many votes!");
+#			$kernel->post( $::botalias, 'privmsg', 'GK|green', "ban @{$chan}[0] $kickee You are hated by $kickreason!");
 			return ;
 		}
 		
