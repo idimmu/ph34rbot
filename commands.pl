@@ -23,7 +23,8 @@ use warnings;
 	todo
 );
 
-
+require "commands/roll.pl";
+require "commands/test.pl";
 
 # PRIVMSG to a public channel received, this is where we process normal commands
 sub irc_public{
@@ -35,11 +36,30 @@ sub irc_public{
       return;
   }
   
-  return unless $msg =~ /^p(\S+) /;
+  my %userinfo = (
+  	'full' => $who ,
+	'nick' => $nick ,
+	'user' => $user ,
+	'host' => $host
+  );
+  
+  my $command = $1 if $msg =~ /^p(\S+) (.+)/;
+  return unless defined $command;
+  my $parameter = $2;
 
-  my $command = $1;
-
-  return unless grep /^$command$/ , @::public_commands;
+  # Don't allow a command of .* to pass
+  return unless grep /^\Q$command\E$/ , @::public_commands;
+  
+  eval {
+    my $funcptr;
+    my $evalstr = "\$funcptr = \\\&cmd_${command};";
+    eval $evalstr;
+    
+    &$funcptr($kernel, $heap, \%userinfo, $chan, $parameter);
+  };
+  
+  # Did we find a dynamic command? If not, continue.
+  return unless $@;
   
   if($msg =~ /^pgoogle (.*?)(\s\d\d?)?$/i){ # asking for a google
     #$kernel->post( $::botnick, 'privmsg', $chan, 'pgoogle currently down due to excessive shitness' );
@@ -121,33 +141,6 @@ sub irc_public{
     # urlify the query, then staple it on the end of the e2 url.
     # some day I'll make it check for actual existance of a requested node and possibly return
     # suggestions based on the search if it doesn't find a node... some day...
-  }elsif($msg =~ /^proll\s*(\d*)(\#)?(\d*)d(\d+)([+|-]\d+)?(\s*.*)$/i){
-    my ($numrolls, $hash, $diceprroll, $numbsides, $modifier, $comment) = ( $1, $2, $3, $4, $5, $6 );
-    #$kernel->post( $::botalias, 'privmsg', $chan, "$numrolls, $hash, $diceprroll, $numbsides, $modifier, $comment");
-    $modifier = 0 unless defined $modifier;
-    $numrolls = 1 unless $numrolls;
-    $diceprroll = 1 unless $diceprroll;
-    #$comment = " $comment" if $comment;
-    my @results;
-    my $total;
-    if($hash){
-	for(my $i = 0; $i < $numrolls && $numrolls < 100; $i++){
-        push @results, roll_dice( $diceprroll, $numbsides, $modifier );
-        $total += $results[$i];
-      }
-      my $rolltype = join('', $numrolls, '#', $diceprroll, 'd', $numbsides, $modifier, "$comment");
-      my $rolls = join(', ', @results);
-      $kernel->post( $::botalias, 'ctcp', $chan, "ACTION ---> $nick rolls $rolltype and gets $rolls = $total");
-    }else{
-      my $total;
-      for(my $i = 0; $i < $numrolls && $numrolls < 100; $i++){
-        $total += int(rand($numbsides)) + 1;
-      }
-      $total += $modifier;
-
-      my $rolltype = join('', $numrolls, 'd', $numbsides, $modifier, "$comment");
-      $kernel->post( $::botalias, 'ctcp', $chan, "ACTION ---> $nick rolls $rolltype and gets $total");
-    }
   }elsif($msg =~ /^pcamp\s*(.*)$/i){
     my $tg = $1;
     $tg =~ s/^\s+//;
