@@ -8,7 +8,7 @@ sub cmd_vote($$$$$) {
 	
 	return unless $msg =~ /^([A-Za-z0-9]+)/ ;
 	
-	my $kickee = $msg;
+	my $kickee = lc $msg;
 	my $kicker = "$userinfo->{user}\@$userinfo->{host}";
 	
 	if ( $kickee eq $::botnick ) {
