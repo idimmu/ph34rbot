@@ -29,7 +29,6 @@ sub cmd_vote($$$$$) {
 	
 	if( exists $::vote{$kickee} ) {
 		# Someone already voted!
-		 $kernel->post( $::botalias, 'privmsg', 'jesterina', "$kickee - $::vote{$kickee}{total} - $kicker" ) ;
 		if( exists $::vote{$kickee}{$kicker} ) {
 			# Double vote. Nigger.
 			$kernel->post( $::botalias, 'privmsg', $chan, "Don't be a nigger $userinfo->{nick}." );
