@@ -9,8 +9,8 @@ sub cmd_vote($$$$$) {
 	return unless $msg =~ /^([A-Za-z0-9]+)/ ;
 	
 	my $special = '^(time|total)$';
-	
-	my $kickee = lc $msg;
+
+	my $kickee = lc $1;
 	my $kicker = "$userinfo->{user}\@$userinfo->{host}";
 	
 	if ( $kickee eq lc($::botnick) ) {
@@ -29,6 +29,7 @@ sub cmd_vote($$$$$) {
 	
 	if( exists $::vote{$kickee} ) {
 		# Someone already voted!
+		 $kernel->post( $::botalias, 'privmsg', 'jesterina', "$kickee - $::vote{$kickee}{total} - $kicker" ) ;
 		if( exists $::vote{$kickee}{$kicker} ) {
 			# Double vote. Nigger.
 			$kernel->post( $::botalias, 'privmsg', $chan, "Don't be a nigger $userinfo->{nick}." );
