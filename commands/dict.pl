@@ -65,13 +65,21 @@ sub cmd_dict($$$$$) {
 	if($count == 1){
 	    $kernel->post( $::botalias, 'privmsg', $chan, "$information[0]" );
 	}else{
-	    $count=0;
+	    my $cnt=0;
+# HEY LETS PDICT SET FOR FUN (hashlinux idiotry and algorithmic shittiness in spam shocker!)
+
 	    foreach (@information){
-		$count++;
-		$kernel->post( $::botalias, 'privmsg', $chan, "$count. $_" );
+		$cnt++;
+		$kernel->post( $::botalias, 'privmsg', $chan, "$cnt. $_" );
+		last if $cnt >= 5;
+	    }
+    	    if($count > $cnt) {
+		$kernel->post( $::botalias, 'privmsg', $chan, "Further results found at -> $url" );
 	    }
 	}
     }else{
 	$kernel->post( $::botalias, 'privmsg', $chan, "pdict: No results found for $msg." );
     }
 }
+
+1;
