@@ -2,11 +2,21 @@ use strict;
 use warnings;
 
 push @::public_commands , 'vote';
+push @::public_commands , 'votestatus';
 
 sub cmd_vote($$$$$) {
 	my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
 	
 	return unless $msg =~ /^([A-Za-z0-9_\-[\]\\`\^{}|]+)/ ;
+	
+	my $time = scalar time;
+	
+	foreach my $nick (keys %::vote) {
+		if ($::vote{$nick}->{time} < ($time - 3600)) {
+			# Need to expire this vote
+			delete $::vote{$nick};
+		}
+	}
 	
 	my $special = '^(time|total)$';
 
@@ -16,13 +26,12 @@ sub cmd_vote($$$$$) {
 	if ( $kickee eq lc($::botnick) ) {
 		my $autoban = "ban @{$chan}[0] $userinfo->{nick} No";
 		$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, $autoban);
-#		$kernel->post( $::botalias, 'privmsg', 'GK|green', $autoban);
 		return ;
 	}
 	
 	if( not exists $::vote{$kickee} ) {
 		$::vote{$kickee}{$kicker} = $userinfo->{nick};
-		$::vote{$kickee}{time} = scalar time;
+		$::vote{$kickee}{time} = $time;
 		$::vote{$kickee}{total} = 1;
 		
 		return;
@@ -61,5 +70,21 @@ sub cmd_vote($$$$$) {
 		}
 		
 		return ;
+	}
+}
+
+sub cmd_votestatus($$$$$) {
+	my ($kernel, undef, undef, $chan, undef) = @_;
+	
+	my $string;
+	
+	foreach my $nick (sort keys %::vote) {
+		$string .= "$nick (" . $::vote{$nick}->{total} . ")  ";
+	}
+	
+	if( $string eq "" ) {
+		$kernel->post( $::botalias, 'privmsg', $chan, 'Noone is scheduled for destruction.' );
+	} else {
+		$kernel->post( $::botalias, 'privmsg', $chan, $string );
 	}
 }
