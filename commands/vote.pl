@@ -4,11 +4,7 @@ use warnings;
 push @::public_commands , 'vote';
 push @::public_commands , 'votestatus';
 
-sub cmd_vote($$$$$) {
-	my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
-	
-	return unless $msg =~ /^([A-Za-z0-9_\-[\]\\`\^{}|]+)/ ;
-	
+sub expire_bans() {
 	my $time = scalar time;
 	
 	foreach my $nick (keys %::vote) {
@@ -17,6 +13,14 @@ sub cmd_vote($$$$$) {
 			delete $::vote{$nick};
 		}
 	}
+}
+
+sub cmd_vote($$$$$) {
+	my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
+	
+	return unless $msg =~ /^([A-Za-z0-9_\-[\]\\`\^{}|]+)/ ;
+	
+	expire_bans();
 	
 	my $special = '^(time|total)$';
 
@@ -65,7 +69,6 @@ sub cmd_vote($$$$$) {
 			
 			my $message = "ban @{$chan}[0] $kickee You are hated by $kickreason!";
 			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, $message);
-#			$kernel->post( $::botalias, 'privmsg', 'GK|green', $message);
 			return ;
 		}
 		
@@ -75,6 +78,8 @@ sub cmd_vote($$$$$) {
 
 sub cmd_votestatus($$$$$) {
 	my ($kernel, undef, undef, $chan, undef) = @_;
+	
+	expire_bans();
 	
 	my $string;
 	
