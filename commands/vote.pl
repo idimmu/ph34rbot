@@ -22,6 +22,8 @@ sub cmd_vote($$$$$) {
 	
 	expire_bans();
 	
+	my $time = scalar time;
+	
 	my $special = '^(time|total)$';
 
 	my $kickee = lc $1;
