@@ -37,8 +37,12 @@ sub cmd_cur($$$$$) {
     my $content = get $url;
     $content =~ s/,//g;
     my ($cur) = ($content =~ /<b>(\d+\.?\d+)\s*$tocur\s*<\/b>/i);
-    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\s*<\/font>/is);
-    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\s*<\/font>/is);
+    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\n/is);
+    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\n/is);
+
+
+#    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\s*<\/font>/is);
+#    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\s*<\/font>/is);
     
     my $reply;
     if(!$fromcur || !$tocur ){
