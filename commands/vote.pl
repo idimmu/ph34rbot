@@ -69,7 +69,13 @@ sub cmd_vote($$$$$) {
 			$kernel->post( $::botalias, 'privmsg', $chan, "You are the weakest link. Goodbye $kickee!" );
 			delete $::vote{$kickee};
 			
-			my $message = "ban @{$chan}[0] $kickee You are hated by $kickreason!";
+			my $message = "";
+			
+			if( rand 10 < 5 ) {			
+				$message = "ban @{$chan}[0] $kickee You are hated by $kickreason!";
+			} else {
+				$message = "voice @{$chan}[0] $kickee";
+			}
 			$kernel->post( $::botalias, 'privmsg', $::cservice{'nick'}, $message);
 			return ;
 		}
