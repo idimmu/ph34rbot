@@ -19,6 +19,7 @@ require "commands/test.pl";
 require "commands/todo.pl";
 require "commands/url.pl";
 require "commands/vote.pl";
+require "commands/wiki.pl";
 
 
 # PRIVMSG to a public channel received, this is where we process normal commands

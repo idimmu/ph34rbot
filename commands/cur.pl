@@ -36,10 +36,10 @@ sub cmd_cur($$$$$) {
     
     my $content = get $url;
     $content =~ s/,//g;
-    my ($cur) = ($content =~ /<b>(\d+\.?\d+)\s*$tocur\s*<\/b>/i);
-    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\n/is);
-    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\n/is);
 
+    my ($cur) = ($content =~ />(\d+\.?\d+)\s*$tocur\s*</ig);
+    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\n/ig);
+    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\n/ig);
 
 #    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\s*<\/font>/is);
 #    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\s*<\/font>/is);
