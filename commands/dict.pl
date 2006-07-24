@@ -1,6 +1,8 @@
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 push @::public_commands , 'dict';
 
 #  }elsif($msg =~ /^pdict\s*(\S+)$/i){
@@ -43,13 +45,61 @@ sub cmd_dict($$$$$) {
     
     return unless $msg;
     
-    my $url = "http://www.dictionary.com/cgi-bin/dict.pl?term=$msg";
+    #my $url = "http://www.dictionary.com/cgi-bin/dict.pl?term=$msg";
+    my $url = "http://www.m-w.com/dictionary/$msg";
     my $content = get $url;
+    my @content = split /\n/ , $content;
     my @results;
     
-    while( $content =~ s/<(DD|LI)[^>]*>(.*?)<\/(DD|LI)>// ){
-	push(@results,$2);
+    #while( $content =~ s/<(DD|LI)[^>]*>(.*?)<\/(DD|LI)>// ){
+	#push(@results,$2);
+    #}
+    
+    if( $content =~ /Suggestions for/ ) {
+    	# Spelling mistake
+	$kernel->post( $::botalias, 'privmsg', $chan, "You can't type. Is one of these what you mean:");
+	
+	my $count = 0;
+        foreach (@content) {
+            if ( /^\<PRE\>/ ... /^\<\/PRE\>/ ) {
+                if( /(\w+)<\/a>/ and $count < 5) {
+                    $kernel->post( $::botalias, 'privmsg', $chan,  "  Suggestion: $1");
+                    ++$count;
+                }
+            }
+        }
+    } else {
+        # Presumably this is a real word
+
+        foreach (@content) {
+		my $defnline;
+	        if( /^<b>:<\/b>/ ) {
+			$defnline = $_;
+		}
+		
+		if( /^<b>1( [a-z])?<\/b>/ ) {
+			$defnline = $_;
+		}
+		
+		if( defined $defnline ) {
+			my @defns = split /<b>:<\/b>/ , $defnline;
+			
+			my $count = 1;
+			foreach (@defns) {
+				s/<i>//g; s/<\/i>//g;
+				if( /\s*([^<]+)\s*/ and $count <= 5) {
+					my $defn = $1;
+					next if $defn =~ /^\s*$/;
+					next if $defn =~ /^b>1/;
+					
+					$kernel->post( $::botalias, 'privmsg', $chan, "$count. $defn");
+					++$count;
+				}
+			}
+		}
+        }
     }
+    return;
     
     my @information;
     
