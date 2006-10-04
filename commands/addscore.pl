@@ -12,7 +12,7 @@ sub cmd_addscore($$$$$) {
 		   'judaism', 'sikhism', 'shintoism','scientology');
 
   unless($msg =~ /^(\S+)\s+(.*)$/){
-    $kernel->post( $::botalias, 'privmsg', $chan, "Usage: pscore <religion> <url>");
+    $kernel->post( $::botalias, 'privmsg', $chan, "Usage: paddscore <religion> <url>");
     return;
   }
 
@@ -22,7 +22,7 @@ sub cmd_addscore($$$$$) {
   my @chosen = grep(/$religion/, @religions);
 
   if(scalar(@chosen) != 1) {
-    $kernel->post( $::botalias, 'privmsg', $chan, "pscore <religion> (must be uniquely one of ".
+    $kernel->post( $::botalias, 'privmsg', $chan, "paddscore <religion> (must be uniquely one of ".
 		   join(', ', sort(@religions)).")");
     return;
   }
