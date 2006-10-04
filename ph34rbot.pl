@@ -33,6 +33,7 @@ my %files = (
   'help' => "$0.help",
   'ban' => "$0.ban",
   'coord' => "$0.coord",
+  'score' => "$0.score",
 );
 
 
