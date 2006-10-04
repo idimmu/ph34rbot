@@ -14,7 +14,7 @@ sub cmd_score($$$$$) {
 		'hinduism', 'judaism', 'sikhism', 'shintoism',
 		'scientology');
 
-  my @chosen = grep(/$msg/, @religions);
+  my @chosen = grep(/$msg/i, @religions);
   if(scalar(@chosen) != 1) {
     $kernel->post( $::botalias, 'privmsg', $chan, "pscore <religion> (must be uniquely one of ".
 		   join(', ', sort(@religions)).")");

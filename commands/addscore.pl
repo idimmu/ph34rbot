@@ -19,7 +19,7 @@ sub cmd_addscore($$$$$) {
   my $religion = $1;
   my $url = $2;
 
-  my @chosen = grep(/$religion/, @religions);
+  my @chosen = grep(/$religion/i, @religions);
 
   if(scalar(@chosen) != 1) {
     $kernel->post( $::botalias, 'privmsg', $chan, "paddscore <religion> (must be uniquely one of ".
