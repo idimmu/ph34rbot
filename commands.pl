@@ -7,6 +7,7 @@ use warnings;
 
 require "commands/addhelp.pl";
 require "commands/addquote.pl";
+require "commands/addscore.pl";
 require "commands/addurl.pl";
 require "commands/cur.pl";
 require "commands/dict.pl";
@@ -15,6 +16,7 @@ require "commands/google.pl";
 require "commands/help.pl";
 require "commands/quote.pl";
 require "commands/roll.pl";
+require "commands/score.pl";
 require "commands/test.pl";
 require "commands/todo.pl";
 require "commands/url.pl";

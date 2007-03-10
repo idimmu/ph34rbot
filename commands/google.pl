@@ -26,7 +26,8 @@ push @::public_commands , 'google';
 sub cmd_google($$$$$) {
     my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
     return unless $msg =~ /^(.*?)(\s\d\d?)?$/;
-    
+
+
     my $searchstring = $1;
     my $returncount = $2 || 1;
     if($searchstring eq '?' || $returncount < 0 || $returncount > 10){ #give help!
