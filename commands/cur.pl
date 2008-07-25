@@ -28,9 +28,9 @@ push @::public_commands , 'cur';
 sub cmd_cur($$$$$) {
     my ($kernel, $heap, $userinfo, $chan, $msg) = @_;
     
-    return unless $msg =~ /^(\d+)\s*([a-zA-Z]{3})\s*([a-zA-Z]{3})\s*$/;
+    return unless $msg =~ /^(([\d]+)(\.[\d]+)?)\s+([a-zA-Z]{3})\s+([a-zA-Z]{3})\s*$/;
     
-    my ($amount, $fromcur, $tocur) = ($1, $2, $3);
+    my ($amount, $fromcur, $tocur) = ($1, $4, $5);
     
     my $url = "http://www.xe.com/ucc/convert.cgi?Amount=$amount&From=$fromcur&To=$tocur";
     
@@ -41,8 +41,8 @@ sub cmd_cur($$$$$) {
     ($cur) = ($content =~ />(\d+\.?\d+)\s*$tocur\s*</ig);
 #    ($fromcur) = ($content =~ /($fromcur).*?<\/h2>/ig);
 #    ($tocur) = ($content =~ /$tocur.*?<\/h2>(.*?)\n/ig);
-    ($fromcur) = ($content =~ /<td align="right" id="XEenlarge">(.*)\n/);
-    ($tocur) = ($content =~ /<td align="left" id="XEenlarge">(.*)\n/);
+    ($fromcur) = ($content =~ /<td align="right" class="XEenlarge">([A-Za-z ]+)/);
+    ($tocur) = ($content =~ /<td align="left" class="XEenlarge">([A-Za-z ]+)/);
 
 #    ($fromcur) = ($content =~ /$fromcur.*?<br>(.*?)\s*<\/font>/is);
 #    ($tocur) = ($content =~ /$tocur.*?<br>(.*?)\s*<\/font>/is);
